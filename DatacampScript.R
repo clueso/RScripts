@@ -21,6 +21,7 @@ all_returns = diff(log(all_prices))
 # Create matrix with returns
 return_matrix = coredata(all_returns)
 
+pdf("test.pdf");
 chart.TimeSeries(all_returns, legend.loc="bottom", main=" ")
 chart.Bar(all_returns, legend.loc="bottom", main=" ")
 Mean_vector = apply(return_matrix,2,na.rm=TRUE,mean)
@@ -30,14 +31,19 @@ simple_returns = diff(all_prices)/lag(all_prices, k=-1);
 chart.CumReturns(simple_returns,wealth.index = TRUE,legend.loc="topleft", main="Future Value of $1 invested")
 #pdf("SampleGraph.pdf",width=7,height=5) - to output to PDF. Close device with dev.off()
 
-par(mfrow=c(2,2))
-hist(return_matrix[,"PLI"],main="PLI monthly returns",
-     xlab="PLI", probability=T, col="slateblue1")
-boxplot(return_matrix[,"PLI"],outchar=T, main="Boxplot", col="slateblue1")
-plot(density(return_matrix[,"PLI"]),type="l", main="Smoothed density",
-     xlab="monthly return", ylab="density estimate", col="slateblue1")
-qqnorm(return_matrix[,"PLI"], col="slateblue1")
-qqline(return_matrix[,"PLI"])
-par(mfrow=c(1,1))
+for(i in 1:3)
+{
+	par(mfrow=c(2,2))
+	returns = return_matrix[!is.na(return_matrix[,i]),i];
+	hist(returns,main=paste(colnames(all_returns)[i],"monthly returns",sep=" "),
+	     xlab=colnames(all_returns)[i], probability=T, col="slateblue1")
+	boxplot(returns,outchar=T, main="Boxplot", col="slateblue1")
+	plot(density(returns),type="l", main="Smoothed density",
+	     xlab="monthly return", ylab="density estimate", col="slateblue1")
+	qqnorm(returns, col="slateblue1")
+	qqline(returns)
+	par(mfrow=c(1,1))
+}
 
 which(index(all_returns) == as.yearmon("Jan 2014"))
+dev.off()
