@@ -58,34 +58,18 @@ calc_rebalanced_portfolio_value = function(inv_amount, sym_data, rebalance_alloc
 	no_of_shares = matrix(nrow = dim(sym_data)[1], ncol = dim(sym_data)[2]);
 	inv_capital = inv_amount * rebalance_alloc;
 	no_of_shares[1,] = calc_shares(sym_data[1,], inv_capital);
+	next_rebalance_day = index(sym_data)[2];
 	for (i in 2:dim(sym_data)[1]) {
-		no_of_shares[i,] = rebalance(no_of_shares[i-1,], sym_data[i,], rebalance_alloc);
+		if (index(sym_data)[i] == next_rebalance_day) {
+			no_of_shares[i,] = rebalance(no_of_shares[i-1,], sym_data[i,], rebalance_alloc);
+			if (i <= (dim(sym_data)[1] - 4))
+				next_rebalance_day = index(sym_data)[i+4];
+		} else {
+			no_of_shares[i,] = no_of_shares[i-1,];
+		}
 	}
 	no_of_shares_zoo = as.zoo(no_of_shares);
 	index(no_of_shares_zoo) = index(sym_data);
 	colnames(no_of_shares_zoo) = colnames(sym_data);
 	return(no_of_shares_zoo);
 }
-
-#list = c("XUS.TO", "VAB.TO", "VE.TO");
-list = c("SPY", "XIU.TO", "XBB.TO");
-fractions = c(0.33, 0.33, 0.34);
-
-colours = c(1:length(list));
-line_width = c(2,2,2,2,2);
-full_data = download_clip_data(list);
-full_data[as.Date("2000-11-23"), "SPY"] = full_data[as.Date("2000-11-24"), "SPY"];
-full_returns_data = calc_returns(full_data);
-inv_growth_data = calc_single_investment_value(10000, full_data);
-port_growth_data = calc_portfolio_value(10000, full_data, fractions);
-#inv_growth_data = merge(inv_growth_data, port_growth_data);
-nos = calc_rebalanced_portfolio_value(10000, full_data, fractions);
-port_price = 10000/apply(nos,1,sum);
-port_growth = (port_price/port_price[1])*10000;
-inv_growth_data = merge(inv_growth_data, port_growth);
-col = c("red", "blue", "green", "black", "orange")
-plot(inv_growth_data, plot.type = "single", col = colours, lwd = line_width);
-#lines(port_growth_data, col = "slateblue", lwd = line_width);
-#legend(x = as.Date("2013-09-01"), y = 19000, legend = colnames(full_returns_data), col = colours, lwd = line_width);
-
-#par(mfrow = c(2,2));
