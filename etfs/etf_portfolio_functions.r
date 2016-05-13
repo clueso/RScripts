@@ -3,15 +3,24 @@ library(PerformanceAnalytics);
 library(zoo);
 
 rm(list=ls());
-download_clip_data = function(sym_list)
+
+download_clip_data_single = function(sym_list, freq="m")
+{
+	stock_price = get.hist.quote(sym_list, compression=freq, quote="AdjClose",retclass="zoo");
+	stock_price = na.locf(stock_price);
+	colnames(stock_price) = sym_list;
+	return(stock_price);
+}
+
+download_clip_data_multiple = function(sym_list, freq="m")
 {
 	for (i in 1:length(sym_list)) {
 		if (i == 1) {
-			stock_price = get.hist.quote(sym_list[i], compression="d",quote="AdjClose",retclass="zoo");
+			stock_price = get.hist.quote(sym_list[i], compression=freq,quote="AdjClose",retclass="zoo");
 			max_date = start(stock_price);
 			min_date = end(stock_price);
 		} else {
-			new_data = get.hist.quote(sym_list[i], compression="d",quote="AdjClose",retclass="zoo")
+			new_data = get.hist.quote(sym_list[i], compression=freq,quote="AdjClose",retclass="zoo")
 			if (max_date < start(new_data))
 				max_date = start(new_data);
 			if (min_date > end(new_data))
@@ -23,6 +32,20 @@ download_clip_data = function(sym_list)
 	stock_price = na.locf(stock_price);
 	colnames(stock_price) = sym_list;
 	return(stock_price);
+}
+
+download_clip_data = function(sym_list, freq="m")
+{
+	if (length(sym_list) == 1) {
+		return(download_clip_data_single(sym_list, freq));
+	} else {
+		return(download_clip_data_multiple(sym_list, freq));
+	}
+}
+
+clip_data = function(stock_data, start_date, end_date)
+{
+	return(window(stock_data, start=start_date, end=end_date));
 }
 
 calc_returns = function(sym_data)
