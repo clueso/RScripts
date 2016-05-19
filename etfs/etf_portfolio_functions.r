@@ -8,6 +8,7 @@ download_clip_data_single = function(sym_list, freq="m")
 {
 	stock_price = get.hist.quote(sym_list, compression=freq, quote="AdjClose",retclass="zoo");
 	stock_price = na.locf(stock_price);
+	stock_price = na.trim(stock_price);
 	colnames(stock_price) = sym_list;
 	return(stock_price);
 }
@@ -30,6 +31,7 @@ download_clip_data_multiple = function(sym_list, freq="m")
 	}
 	stock_price = window(stock_price, start = max_date, end = min_date);
 	stock_price = na.locf(stock_price);
+	stock_price = na.trim(stock_price);
 	colnames(stock_price) = sym_list;
 	return(stock_price);
 }
@@ -57,6 +59,12 @@ calc_single_investment_value = function(inv_amount, sym_data)
 {
 	inv_growth = sweep(sym_data, 2, sym_data[1,], "/");
 	return(inv_growth * inv_amount);
+}
+
+calc_portfolio_indiv_values = function(inv_amount, sym_data, allocation)
+{
+	ret_val = calc_single_investment_value(inv_amount, sym_data);
+	return(sweep(ret_val, MARGIN=2,allocation, '*'));
 }
 
 calc_portfolio_value = function(inv_amount, sym_data, allocation)
