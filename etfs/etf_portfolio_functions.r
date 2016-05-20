@@ -4,6 +4,50 @@ library(zoo);
 
 rm(list=ls());
 
+plot_histograms = function(data, breaks=40)
+{
+	ncolumns = ncol(data);
+	disp_ncols = floor(sqrt(ncolumns));
+	disp_nrows = ceiling(sqrt(ncolumns));
+
+	if (disp_ncols == 1)
+		disp_ncols = 2;
+	par(mfrow = c(disp_nrows, disp_ncols));
+	for (i in 1:ncolumns)
+		hist(data[,i], breaks, main=colnames(data)[i]);
+	par(mfrow = c(1,1));
+}
+
+plot_boxplots = function(data)
+{
+	ncolumns = ncol(data);
+	disp_ncols = floor(sqrt(ncolumns));
+	disp_nrows = ceiling(sqrt(ncolumns));
+
+	if (disp_ncols == 1)
+		disp_ncols = 2;
+	par(mfrow = c(disp_nrows, disp_ncols));
+	for (i in 1:ncolumns)
+		boxplot(as.vector(data[,i]), main=colnames(data)[i]);
+	par(mfrow = c(1,1));
+}
+
+plot_qqplots = function(data)
+{
+	ncolumns = ncol(data);
+	disp_ncols = floor(sqrt(ncolumns));
+	disp_nrows = ceiling(sqrt(ncolumns));
+
+	if (disp_ncols == 1)
+		disp_ncols = 2;
+	par(mfrow = c(disp_nrows, disp_ncols));
+	for (i in 1:ncolumns) {
+		qqnorm(data[,i], main=colnames(data)[i]);
+		qqline(data[,i]);
+	}
+	par(mfrow = c(1,1));
+}
+
 download_clip_data_single = function(sym_list, freq="m")
 {
 	stock_price = get.hist.quote(sym_list, compression=freq, quote="AdjClose",retclass="zoo");
