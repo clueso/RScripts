@@ -99,6 +99,12 @@ calc_returns = function(sym_data)
 	return(diff(log(sym_data)));
 }
 
+calc_single_stock_value = function(inv_amount, sym_data)
+{
+	inv_growth = sym_data/(coredata(sym_data)[1]);
+	return(inv_growth * inv_amount);
+}
+
 calc_single_investment_value = function(inv_amount, sym_data)
 {
 	inv_growth = sweep(sym_data, 2, sym_data[1,], "/");
@@ -116,6 +122,7 @@ calc_portfolio_value = function(inv_amount, sym_data, allocation)
 	ret_val = calc_single_investment_value(inv_amount, sym_data);
 	return(rowSums(sweep(ret_val, MARGIN=2,allocation, '*')));
 }
+
 calc_shares = function(prices, investments)
 {
 	return(investments/prices);

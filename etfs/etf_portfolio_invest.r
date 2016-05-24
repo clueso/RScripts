@@ -19,8 +19,8 @@ legend_entries = c("XUS", "VAB", "XID", "VCN", "Portfolio");
 #port_value = apply(nos*full_data, 1, sum);
 #inv_growth_data = merge(inv_growth_data, port_value);
 #plot(inv_growth_data, plot.type = "single", col = colours, lwd = line_width);
-png("test.png", width=800);
+#png("test.png", width=800);
 plot(full_growth_data, plot.type = "single", xlab = "Time", ylab = "Value of $10000 investment", col = colours, lwd = line_width);
 legend(x = as.Date("2013-09-01"), y = 19000, legend_entries, col = colours, lwd = line_width);
 grid(nx = NULL, col = "lightgray", lty = "dotted", lwd = par("lwd"), equilogs = TRUE)
-dev.off();
+#dev.off();
