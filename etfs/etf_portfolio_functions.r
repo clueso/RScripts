@@ -122,7 +122,10 @@ calc_portfolio_indiv_values = function(inv_amount, sym_data, allocation)
 calc_portfolio_value = function(inv_amount, sym_data, allocation)
 {
 	ret_val = calc_single_investment_value(inv_amount, sym_data);
-	return(rowSums(sweep(ret_val, MARGIN=2,allocation, '*')));
+	port_val = rowSums(sweep(ret_val, MARGIN=2,allocation, '*'));
+	port_val = as.zoo(port_val);
+	index(port_val) = index(sym_data);
+	return(port_val);
 }
 
 calc_shares = function(prices, investments)
