@@ -1,31 +1,31 @@
-library(tseries);library(PerformanceAnalytics);library(zoo)
+source("etfs/etf_portfolio_functions.r");
 
-rm(list=ls());
+chosen_list = c("RY.TO", "PLI.TO", "AVO.TO");
 
-init_investment = 100;
-today = Sys.Date();
-start = today - 5;
-end = today - 1;
+#all_data = read.table("./TSX_Stock_list.txt",sep='\t');
+#test_list = all_data[,1];
+test_list = c("TD.TO", "PH.TO", "ABT.TO", "NTS.TO")
+#rm(all_data);
 
-all_data = read.table("./TSX_Stock_list.txt",sep='\t');
-symbol_list = all_data[,1];
-rm(all_data);
+# Method 1 - same effect as method 2
+#test_list = setdiff(test_list, chosen_list);
+#combined_list = c(test_list, chosen_list);
+#full_combined_data = download_clip_data(combined_list);
+#full_test_data = as.zoo(full_combined_data[,1:length(test_list)]);
+#full_chosen_data = as.zoo(full_combined_data[,(length(test_list) + 1):(length(test_list) + length(chosen_list))]);
 
-simple_returns = c();
-compound_returns = c();
-
-for (i in 1:20)
-{
-	symbol_prices = get.hist.quote(as.character(symbol_list[i]), start=as.character(start), end=as.character(end),
-								  quote = c("High","Low"), compression="d",retclass="zoo")
-	symbol_prices = coredata(symbol_prices);
-	returns = (symbol_prices[,"High"] - symbol_prices[,"Low"])/symbol_prices[,"Low"];
-	simple_returns[i] = init_investment * (1 + sum(returns));
-	compound_returns[i] = init_investment * prod(returns + 1);
+# Method 2
+full_chosen_data = calc_returns(download_clip_data(chosen_list));
+full_test_data = calc_returns(download_clip_data(test_list));
+if (length(full_test_data) > length(full_chosen_data)) {
+	start = index(full_chosen_data)[1];
+	stop = index(full_chosen_data)[nrow(full_chosen_data)];
+	full_test_data = window(full_test_data, start = start, end = stop);
+} else {
+	start = index(full_test_data)[1];
+	stop = index(full_test_data)[nrow(full_test_data)];
+	full_chosen_data = window(full_chosen_data, start = start, end = stop);
 }
 
-init_investment * length(symbol_list)
-sum(simple_returns)
-sum(compound_returns)
-
-AVO_prices = get.hist.quote("AVO.TO",compression="d",quote="AdjClose",retclass="zoo")
+full_cor_matrix = cor(full_chosen_data, full_test_data);
+rownames(full_cor_matrix) = chosen_list;

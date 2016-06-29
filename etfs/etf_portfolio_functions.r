@@ -77,6 +77,8 @@ download_clip_data_multiple = function(sym_list, freq="m")
 	stock_price = na.locf(stock_price);
 	stock_price = na.trim(stock_price);
 	colnames(stock_price) = sym_list;
+	max_date;
+	min_date;
 	return(stock_price);
 }
 
